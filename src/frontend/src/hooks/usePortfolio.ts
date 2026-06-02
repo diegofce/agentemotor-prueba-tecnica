@@ -98,6 +98,12 @@ function portfolioReducer(
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
+    if (
+      error.message === "Failed to fetch" ||
+      error.message.includes("NetworkError")
+    ) {
+      return "No se pudo conectar con el backend. Inicie uvicorn en el puerto 8000.";
+    }
     return error.message;
   }
   return "Ocurrió un error inesperado";

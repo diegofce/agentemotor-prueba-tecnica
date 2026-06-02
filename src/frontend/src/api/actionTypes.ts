@@ -1,5 +1,6 @@
-import { API_BASE_URL } from "./config";
+import { DEFAULT_ACTION_TYPES } from "../constants/actionTypes";
 import type { ActionType } from "../types/managementAction";
+import { API_BASE_URL } from "./config";
 
 interface OpenApiSchema {
   properties?: {
@@ -27,14 +28,19 @@ function isActionType(value: string): value is ActionType {
 }
 
 export async function fetchActionTypes(): Promise<ActionType[]> {
-  const response = await fetch(`${API_BASE_URL}/openapi.json`);
-  if (!response.ok) {
-    throw new Error("No se pudieron cargar los tipos de gestión");
+  try {
+    const response = await fetch(`${API_BASE_URL}/openapi.json`);
+    if (!response.ok) {
+      return DEFAULT_ACTION_TYPES;
+    }
+
+    const document = (await response.json()) as OpenApiDocument;
+    const schema = document.components?.schemas?.ManagementActionCreate;
+    const enumValues = schema?.properties?.action_type?.enum ?? [];
+    const parsed = enumValues.filter(isActionType);
+
+    return parsed.length > 0 ? parsed : DEFAULT_ACTION_TYPES;
+  } catch {
+    return DEFAULT_ACTION_TYPES;
   }
-
-  const document = (await response.json()) as OpenApiDocument;
-  const schema = document.components?.schemas?.ManagementActionCreate;
-  const enumValues = schema?.properties?.action_type?.enum ?? [];
-
-  return enumValues.filter(isActionType);
 }

@@ -53,7 +53,7 @@ export function PoliciesSection({
 
       {loading && <p className="section-status">Cargando pólizas…</p>}
 
-      {!loading && error === null && (
+      {!loading && (
         <PoliciesTable
           policies={policies}
           onRegisterAction={onRegisterAction}

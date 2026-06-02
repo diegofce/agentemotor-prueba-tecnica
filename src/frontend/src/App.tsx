@@ -3,7 +3,6 @@ import { PoliciesSection } from "./components/PoliciesSection";
 import { SummarySection } from "./components/SummarySection";
 import { usePortfolio } from "./hooks/usePortfolio";
 import type { Policy } from "./types/policy";
-import "./styles/global.css";
 import "./styles/app.css";
 import "./styles/summary.css";
 import "./styles/policies.css";

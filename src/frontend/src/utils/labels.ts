@@ -28,8 +28,11 @@ const ACTION_TYPE_LABELS: Record<ActionType, string> = {
   note: "Nota",
 };
 
-export function getPolicyTypeLabel(policyType: PolicyType): string {
-  return POLICY_TYPE_LABELS[policyType];
+export function getPolicyTypeLabel(policyType: PolicyType | string): string {
+  if (policyType in POLICY_TYPE_LABELS) {
+    return POLICY_TYPE_LABELS[policyType as PolicyType];
+  }
+  return policyType;
 }
 
 export function getPolicyStatusLabel(status: PolicyStatus): string {

@@ -1,3 +1,4 @@
+import { EMPTY_SUMMARY } from "../constants/summary";
 import type { Summary } from "../types/summary";
 import { SummaryCard } from "./SummaryCard";
 
@@ -26,15 +27,24 @@ export function SummarySection({
 
       {loading && <p className="section-status">Cargando resumen…</p>}
 
-      {!loading && error === null && summary !== null && (
+      {!loading && (
         <div className="summary-grid">
-          <SummaryCard label="Por vencer" value={summary.por_vencer} />
-          <SummaryCard label="En ventana" value={summary.en_ventana} />
+          <SummaryCard
+            label="Por vencer"
+            value={(summary ?? EMPTY_SUMMARY).por_vencer}
+          />
+          <SummaryCard
+            label="En ventana"
+            value={(summary ?? EMPTY_SUMMARY).en_ventana}
+          />
           <SummaryCard
             label="Fuera de ventana"
-            value={summary.fuera_de_ventana}
+            value={(summary ?? EMPTY_SUMMARY).fuera_de_ventana}
           />
-          <SummaryCard label="Renovadas" value={summary.renovadas} />
+          <SummaryCard
+            label="Renovadas"
+            value={(summary ?? EMPTY_SUMMARY).renovadas}
+          />
         </div>
       )}
     </section>
