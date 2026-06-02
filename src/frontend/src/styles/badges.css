@@ -1,0 +1,28 @@
+.badge {
+  display: inline-block;
+  padding: 4px var(--space-3);
+  border-radius: 999px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge-expiring {
+  background: var(--color-expiring-bg);
+  color: var(--color-expiring-text);
+}
+
+.badge-in_window {
+  background: var(--color-in-window-bg);
+  color: var(--color-in-window-text);
+}
+
+.badge-out_of_window {
+  background: var(--color-out-window-bg);
+  color: var(--color-out-window-text);
+}
+
+.badge-neutral {
+  background: var(--color-neutral-bg);
+  color: var(--color-neutral-text);
+}
