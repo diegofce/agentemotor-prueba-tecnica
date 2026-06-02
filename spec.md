@@ -1,4 +1,4 @@
-Autor: Diego Fernando Chacón
+Autor: Diego Fernando Chacon
 Fecha: Junio de 2026
 Tiempo dedicado: 50 min
 

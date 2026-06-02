@@ -18,7 +18,9 @@ pip install -r requirements.txt
 ```
 
 ```bash
-cd src/frontend && npm install && cd ../..
+cd src/frontend && npm install
+
+cd src/backend uvicorn app.main:app --reload
 ```
 
 ```bash
@@ -56,9 +58,8 @@ pytest
 
 ## 2. Decisiones de diseño (y por qué)
 
-**FastAPI + SQLite en el backend.** Validación con Pydantic, OpenAPI gratis y SQLite para correr local sin instalar nada más. La lógica sensible (ventana de 30 días, orden de prioridad, renovación) vive en servicios, no en las rutas.
-
-**React + Vite + TypeScript en el frontend.** Una sola pantalla: resumen arriba, tabla abajo, modales para gestionar y renovar. Sin librerías de estado externas (`useState` / `useReducer` solamente) y CSS puro, como pedía el alcance.
+**FastAPI + SQLite en el backend.** Validación con Pydantic, OpenAPI gratis y SQLite para correr local sin instalar nada más. La lógica sensible (ventana de 30 días, orden de prioridad, renovación) vive en servicios, no en las rutas. Tamnien por comodidad porque he desarrollado en fastPI y lo senti mas ligero.
+**React + Vite + TypeScript en el frontend.** Una sola pantalla: resumen arriba, tabla abajo, modales para gestionar y renovar. Sin librerías de estado externas (`useState` / `useReducer` solamente) y CSS puro, como pedía el alcance. Me parecio que es mas rapido y facil de levantar.
 
 **`window_status` calculado, no guardado en BD.** Así María siempre ve la urgencia real del día sin jobs nocturnos. Es la misma regla antes y después del vencimiento (30 días).
 
@@ -142,9 +143,7 @@ También sumaría **un párrafo o wireframe mínimo del dashboard esperado** .
 
 ## 8. Video
 
-**Link al video (máx. 3 min):**
-`[]`
-
+`[ https://youtu.be/6vRQyulqkJY ]`
 
 ---
 
