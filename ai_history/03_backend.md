@@ -544,40 +544,85 @@ GET /summary
 
 ### Respuesta:
 
- Generé los routers FastAPI:
+• Generé los routers solicitados:
 
   - src/backend/app/api/routes/policies.py:1
   - src/backend/app/api/routes/clients.py:1
   - src/backend/app/api/routes/summary.py:1
-  - Actualicé src/backend/app/api/__init__.py:1
 
-  policies.py incluye:
+  También agregué lo necesario para mantener routers delgados:
 
-  - GET /policies
-  - GET /policies/{id}
-  - POST /policies
-  - POST /policies/{id}/actions
-  - POST /policies/{id}/renew
+  - src/backend/app/repositories/client_repository.py:1
+  - src/backend/app/services/client_service.py:1
+  - Extendí src/backend/app/services/policy_service.py:1
+  - Agregué app/api/__init__.py y app/api/routes/__init__.py
 
-  clients.py incluye:
+  Endpoints implementados:
 
-  - GET /clients
-  - GET /clients/{id}
-  - POST /clients
+  GET  /policies
+  GET  /policies/{id}
+  POST /policies
+  POST /policies/{id}/actions
+  POST /policies/{id}/renew
 
-  summary.py incluye:
+  GET  /clients
+  GET  /clients/{id}
+  POST /clients
 
-  - GET /summary
+  GET  /summary
 
-  Decisiones importantes:
+  Decisiones:
 
-  - Uso APIRouter para cada recurso y luego los registro en main.py.
-  - Los endpoints reciben Session por dependency injection con get_db.
-  - Los endpoints llaman a los servicios correspondientes y devuelven schemas.
-  - No hay lógica de negocio ni acceso directo a la base de datos en los routers.
-    Solo orquestación.
+  - Las rutas usan Depends(get_db) para inyección de sesión.
+  - Los routers no consultan repositorios directamente; llaman servicios.
+  - Los repositorios siguen siendo solo persistencia.
+  - Los errores de dominio (ValueError) se traducen en HTTPException dentro
+    del router.
+
+  - Para POST /policies/{id}/actions, el servicio valida que el policy_id
+    del body coincida con el id de la ruta.
+
+  - summary llama summary_service, que a su vez usa repositorios y
+    window_service.
 
   Verificación ejecutada:
 
-  api ok
+  ['/policies', '/clients', '/summary']
+
+### Prompt 8:
+
+Genera:
+
+app/main.py
+
+Requisitos:
+
+- FastAPI
+- incluir routers
+- startup database
+- documentación OpenAPI
+
+Código limpio.
+
+### Respuesta:
+
+
+### Prompt 9:
+
+Genera:
+
+seed.py
+
+Crear:
+
+- 1 advisor
+- 10 clientes
+- pólizas en distintos estados
+- historial de acciones
+
+Los datos deben servir para demostrar la ventana de 30 días.
+
+
+### Respuesta:
+
 

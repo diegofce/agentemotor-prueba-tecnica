@@ -9,12 +9,13 @@ from app.repositories.management_action_repository import (
     get_actions_by_policy_id,
 )
 from app.repositories.policy_repository import (
+    create_policy,
     get_all_policies,
     get_policy_by_id,
     update_policy,
 )
 from app.schemas.management_action import ManagementActionCreate
-from app.schemas.policy import PolicyRenewalRequest, PolicyResponse
+from app.schemas.policy import PolicyCreate, PolicyRenewalRequest, PolicyResponse
 from app.services.window_service import (
     calculate_days_remaining_in_window,
     calculate_priority,
@@ -57,6 +58,35 @@ def renew_policy(
     )
 
     return build_policy_response(db, updated_policy)
+
+
+def list_policies(db: Session) -> list[PolicyResponse]:
+    return get_enriched_policies(db)
+
+
+def get_policy_detail(db: Session, policy_id: int) -> PolicyResponse:
+    policy = get_policy_by_id(db, policy_id)
+    if policy is None:
+        raise ValueError("policy not found")
+    return build_policy_response(db, policy)
+
+
+def create_new_policy(db: Session, policy_create: PolicyCreate) -> PolicyResponse:
+    policy = create_policy(db, policy_create)
+    return build_policy_response(db, policy)
+
+
+def add_policy_action(
+    db: Session,
+    policy_id: int,
+    action_create: ManagementActionCreate,
+) -> ManagementAction:
+    policy = get_policy_by_id(db, policy_id)
+    if policy is None:
+        raise ValueError("policy not found")
+    if action_create.policy_id != policy_id:
+        raise ValueError("policy_id does not match route id")
+    return create_management_action(db, action_create)
 
 
 def build_policy_response(db: Session, policy: Policy) -> PolicyResponse:
