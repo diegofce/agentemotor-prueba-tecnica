@@ -243,3 +243,80 @@ Usa Pydantic v2.
 
 Seguir exactamente el spec.
 Incluye validaciones relevantes.
+
+### Respuesta:
+
+Generé los schemas Pydantic v2:
+
+  - src/backend/app/schemas/advisor.py:1
+  - src/backend/app/schemas/client.py:1
+  - src/backend/app/schemas/policy.py:1
+  - src/backend/app/schemas/management_action.py:1
+  - src/backend/app/schemas/__init__.py:1
+
+  Incluí:
+
+  - AdvisorCreate, AdvisorResponse
+  - ClientCreate, ClientResponse
+  - PolicyCreate, PolicyResponse, PolicyRenewalRequest
+  - ManagementActionCreate, ManagementActionResponse
+
+  Decisiones importantes:
+
+  - Usé ConfigDict(from_attributes=True) para que los Response puedan
+    construirse desde modelos SQLAlchemy.
+
+  - Usé Literal para valores cerrados del spec:
+      - policy_type: auto, hogar, vida
+      - status: active, renewed, lost
+      - action_type: call_no_answer, call_success, renewal_scheduled,
+        renewed, lost, note
+
+  - PolicyResponse incluye campos persistidos y campos enriquecidos
+    opcionales del spec como window_status, days_overdue, last_action, etc.
+
+  - PolicyRenewalRequest valida que new_expiration_date no sea anterior a
+    hoy.
+
+  - Para zona horaria de Colombia usé America/Bogota con fallback UTC-5,
+    porque en Windows puede faltar tzdata.
+
+  Verificación ejecutada:
+
+  schemas ok
+
+### Prompt 5:
+
+Actúa como backend senior.
+
+Tengo estos modelos:
+[MODELOS]
+
+Genera:
+
+app/repositories/policy_repository.py
+
+Responsabilidades:
+
+- get_all
+- get_by_id
+- create
+- update
+
+No incluir reglas de negocio.
+
+Solo acceso a datos.
+
+Y
+
+Genera:
+
+app/repositories/management_action_repository.py
+
+Solo persistencia.
+
+Nada de lógica de negocio.
+
+### Respuesta:
+
+
