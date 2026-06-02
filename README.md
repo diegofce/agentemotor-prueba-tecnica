@@ -130,24 +130,21 @@ Aproximadamente **5 horas** de trabajo real, repartidas en:
 - Backend (modelo, API, seed, CORS)
 - Frontend (pantalla, modales, conexión al API)
 - Tests de ventana, renovación y prioridad
-- `code_review.md` (en la raíz), historial en `ai_history/` y este README
-
+- `code_review.md`
 ---
 
 ## 7. Qué mejoraría de esta prueba técnica
 
-Sugeriría que el enunciado incluya un **porcentaje orientativo de evaluación** (por ejemplo: 40 % backend, 30 % frontend, 20 % documentación, 10 % tests) o una rúbrica breve. Ayudaría mucho a un perfil junior a priorizar sin adivinar si conviene invertir más en filtros del spec o en pulir el video y la entrega.
+Sugeriría que el enunciado incluya un **porcentaje orientativo de evaluación** (por ejemplo: 40 % backend, 30 % frontend, 20 % documentación, 10 % tests) o una rúbrica breve. Ayudaría mucho a priorizar sin adivinar si conviene invertir más en filtros del spec o en pulir el video y la entrega.
 
-También sumaría **un párrafo o wireframe mínimo del dashboard esperado** (aunque sea opcional). El PDF deja libertad total — está bien — pero asumir demasiado genera specs largas y funcionalidades prometidas que luego no entran en las 4 horas.
-
+También sumaría **un párrafo o wireframe mínimo del dashboard esperado** .
 ---
 
-## 8. Video (obligatorio en la entrega)
+## 8. Video
 
 **Link al video (máx. 3 min):**
-`[PEGAR AQUÍ TU LINK DE LOOM / YOUTUBE UNLISTED]`
+`[]`
 
-Consigna: leer en voz alta las partes más relevantes de `spec.md` y comentar la decisión que más tiempo costó (para mí: la regla de ventana de 30 días y no persistir `window_status`).
 
 ---
 
@@ -166,9 +163,6 @@ Consigna: leer en voz alta las partes más relevantes de `spec.md` y comentar la
 └── requirements.txt
 ```
 
-El análisis del snippet de la prueba está solo en **`code_review.md` en la raíz**, no dentro de `ai_history/`.
-
----
 
 ## 10. Problemas frecuentes al arrancar
 
@@ -179,7 +173,3 @@ El análisis del snippet de la prueba está solo en **`code_review.md` en la ra�
 **Pantalla sin datos** — El backend debe estar en marcha. Sin API, verás ceros y tabla vacía con mensaje de conexión.
 
 ---
-
-## Contacto entrega
-
-Enviar ZIP según indicaciones de la prueba a **rrhh@agentemotor.com**, carpeta `apellido_nombre/`.
