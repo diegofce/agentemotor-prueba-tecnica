@@ -451,3 +451,133 @@ No acceder directamente a la base de datos.
 Usar repositorios.
 
 
+### Respuesta:
+
+ Generé los servicios:
+
+  - src/backend/app/services/policy_service.py:1
+  - src/backend/app/services/summary_service.py:1
+  - Actualicé src/backend/app/services/__init__.py:1
+
+  policy_service.py incluye:
+
+  - renew_policy
+  - validate_renewal
+  - build_policy_response
+  - get_enriched_policies
+  - sort_policies_by_priority
+
+  summary_service.py incluye:
+
+  - get_summary
+
+  Decisiones importantes:
+
+  - Los servicios no acceden directamente a la base de datos con queries.
+    Usan repositorios.
+
+  - La lógica de ventana sigue delegada a window_service.
+  - renew_policy valida la fecha, actualiza la póliza a renewed, cambia
+    expiration_date y crea automáticamente una gestión renewed.
+
+  - build_policy_response construye la respuesta enriquecida del spec:
+    cliente, teléfono, ventana, días vencidos, días restantes, última acción
+    y total de acciones.
+
+  - El resumen retorna:
+      - por_vencer
+      - en_ventana
+      - fuera_de_ventana
+      - renovadas
+
+  - Las renovadas se cuentan por status == "renewed" y no entran en los
+    contadores operativos de ventana.
+
+  Verificación ejecutada:
+
+  services ok
+
+
+### Prompt 8:
+
+Rutas: Policies
+Genera:
+
+app/api/routes/policies.py
+
+Endpoints:
+
+GET /policies
+
+GET /policies/{id}
+
+POST /policies
+
+POST /policies/{id}/actions
+
+POST /policies/{id}/renew
+
+Usar dependency injection.
+
+Mantener routers delgados.
+
+Toda lógica debe vivir en services.
+
+Clients:
+Genera:
+
+app/api/routes/clients.py
+
+GET /clients
+
+GET /clients/{id}
+
+POST /clients
+
+Summary:
+
+Genera:
+
+app/api/routes/summary.py
+
+GET /summary
+
+### Respuesta:
+
+ Generé los routers FastAPI:
+
+  - src/backend/app/api/routes/policies.py:1
+  - src/backend/app/api/routes/clients.py:1
+  - src/backend/app/api/routes/summary.py:1
+  - Actualicé src/backend/app/api/__init__.py:1
+
+  policies.py incluye:
+
+  - GET /policies
+  - GET /policies/{id}
+  - POST /policies
+  - POST /policies/{id}/actions
+  - POST /policies/{id}/renew
+
+  clients.py incluye:
+
+  - GET /clients
+  - GET /clients/{id}
+  - POST /clients
+
+  summary.py incluye:
+
+  - GET /summary
+
+  Decisiones importantes:
+
+  - Uso APIRouter para cada recurso y luego los registro en main.py.
+  - Los endpoints reciben Session por dependency injection con get_db.
+  - Los endpoints llaman a los servicios correspondientes y devuelven schemas.
+  - No hay lógica de negocio ni acceso directo a la base de datos en los routers.
+    Solo orquestación.
+
+  Verificación ejecutada:
+
+  api ok
+
