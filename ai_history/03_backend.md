@@ -320,3 +320,134 @@ Nada de lógica de negocio.
 ### Respuesta:
 
 
+• Generé la capa de repositorios:
+
+  - src/backend/app/repositories/policy_repository.py:1
+  - src/backend/app/repositories/management_action_repository.py:1
+  - src/backend/app/repositories/__init__.py:1
+
+  Incluye:
+
+  policy_repository.py:
+
+  - get_all_policies
+  - get_policy_by_id
+  - create_policy
+  - update_policy
+
+  management_action_repository.py:
+
+  - get_actions_by_policy_id
+  - create_management_action
+
+  Decisiones:
+
+  - Los repositorios reciben Session, no crean sesiones. Eso mantiene la
+    integración limpia con FastAPI vía get_db.
+
+  - No hay reglas de negocio: no cálculo de window_status, no renovación, no
+    priorización, no validación de fechas.
+
+  - create hace add, commit, refresh y devuelve el modelo persistido.
+  - update_policy recibe un modelo existente y un dict, actualiza solo
+    atributos válidos y persiste.
+
+  - Uso select(...) de SQLAlchemy 2.0 para consultas limpias y tipadas.
+
+  Verificación ejecutada:
+
+  repositories ok
+
+### Prompt 6:
+
+Actúa como arquitecto de software y de dominio.
+
+Tengo esta regla:
+
+- por vencer: 0-30 días
+- en ventana: 1-30 días vencida
+- fuera de ventana: más de 30 días
+
+Genera:
+
+app/services/window_service.py
+
+Responsabilidades:
+
+- calcular window_status
+- calcular prioridad
+- calcular días restantes
+
+Toda la lógica de negocio debe vivir aquí.
+
+### Respuesta:
+• Generé src/backend/app/services/window_service.py:1 y src/backend/app/
+  services/__init__.py:1.
+
+  Incluye:
+
+  - calculate_window_status(expiration_date, today=None)
+  - calculate_priority(expiration_date, today=None)
+  - calculate_days_remaining_in_window(expiration_date, today=None)
+  - get_business_today()
+
+  Decisiones:
+
+  - El servicio no depende de FastAPI, SQLAlchemy ni modelos. Es lógica pura
+    de dominio.
+
+  - Usa fecha de negocio Colombia (America/Bogota) con fallback UTC-5 para
+    Windows.
+
+  - Prioridad:
+      - 1: in_window
+      - 2: expiring
+      - 3: out_of_window
+
+  - window_status sigue exactamente la regla:
+      - expiring: entre hoy y 30 días hacia adelante
+      - in_window: vencida entre 1 y 30 días
+      - out_of_window: más de 30 días vencida, o fuera del rango operativo
+
+  - days_remaining_in_window devuelve:
+      - 30 para pólizas no vencidas
+      - 30 - días vencida para pólizas en ventana
+      - None si ya está fuera de ventana
+
+  Verificación de frontera ejecutada:
+
+  hoy -> expiring
+  +30 días -> expiring
+  -1 día -> in_window
+  -30 días -> in_window
+  -31 días -> out_of_window
+
+### Prompt 7:
+
+Genera:
+
+app/services/policy_service.py
+
+Responsabilidades:
+
+- renovar póliza
+- validar renovación
+- construir respuesta enriquecida
+- ordenar por prioridad
+
+app/services/summary_service.py
+Responsabilidades:
+
+- calcular contadores
+
+Retornar:
+
+- por vencer
+- en ventana
+- fuera de ventana
+- renovadas
+No acceder directamente a la base de datos.
+
+Usar repositorios.
+
+
