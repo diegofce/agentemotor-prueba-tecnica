@@ -195,3 +195,51 @@ Requisitos:
 - configuración para FastAPI
 
 Explica decisiones.
+
+### Respuesta:
+• Generé y verifiqué src/backend/app/db/session.py:1.
+
+  También dejé src/backend/app/database.py:1 como re-export de
+  compatibilidad, para que no existan dos Base ni dos conexiones distintas.
+
+  Decisiones:
+
+  - DATABASE_URL = "sqlite:///./insurance_portfolio.db": SQLite local,
+    simple para MVP/prueba técnica.
+
+  - connect_args={"check_same_thread": False}: necesario para usar SQLite
+    correctamente con FastAPI, porque las requests pueden manejarse en
+    distintos threads.
+
+  - SessionLocal = sessionmaker(...): fábrica de sesiones por request.
+  - Base(DeclarativeBase): base única para todos los modelos SQLAlchemy 2.0.
+  - get_db(): dependencia estándar de FastAPI para abrir y cerrar sesión de
+    base de datos por request.
+
+  Verificación ejecutada correctamente:
+
+  ['advisors', 'clients', 'management_actions', 'policies']
+  sqlite
+
+
+### Prompt 4:
+
+Schemas Pydantic
+
+Genera:
+
+app/schemas/advisor.py
+app/schemas/client.py
+app/schemas/policy.py
+app/schemas/management_action.py
+
+Necesito:
+
+- Create
+- Response
+- Y en Policy RenewalRequest
+
+Usa Pydantic v2.
+
+Seguir exactamente el spec.
+Incluye validaciones relevantes.
