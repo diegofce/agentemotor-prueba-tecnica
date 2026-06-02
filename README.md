@@ -1,65 +1,185 @@
 # Agentemotor — Cartera de pólizas
 
-## Cómo ejecutar (3 comandos)
+Prueba técnica Full-Stack. Herramienta para que una asesora (María) deje el Excel y gestione renovaciones con prioridad por la ventana regulatoria de 30 días en Colombia.
 
-Desde la raíz del proyecto:
+Autor: Diego Fernando Chacón
+3187601685
+dyewoc@gmail.com
+---
+
+## 1. Cómo correrlo (máximo 3 comandos)
+
+**Requisitos:** Python 3.11+, Node.js 18+ y npm.
+
+Desde la **raíz del proyecto**:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-**Terminal 1 — API** (desde `src/backend`):
+```bash
+cd src/frontend && npm install && cd ../..
+```
 
 ```bash
+python scripts/start_dev.py
+```
+
+Abre **http://localhost:5173**. El frontend habla con la API por proxy de Vite (`/summary`, `/policies`, `/openapi.json` → puerto 8000).
+
+Al arrancar, el backend crea SQLite y carga datos de demostración (`seed` automático).
+
+### Alternativa manual (dos terminales)
+
+Si prefieres ver logs separados:
+
+```bash
+# Terminal 1
 cd src/backend
 uvicorn app.main:app --reload
 ```
 
-**Terminal 2 — Frontend** (desde `src/frontend`):
-
 ```bash
+# Terminal 2
 cd src/frontend
-npm install
 npm run dev
 ```
 
-Abrir http://localhost:5173 (el proxy de Vite reenvía `/summary`, `/policies` y `/openapi.json` al puerto 8000).
+### Tests
 
-Al arrancar, el backend crea la base SQLite y carga datos de demostración automáticamente.
-
-### Error `WinError 10013` al iniciar uvicorn
-
-Significa que el **puerto 8000 ya está en uso** (otra instancia de uvicorn u otra app).
-
-1. Ver qué proceso lo usa:
-   ```powershell
-   netstat -ano | findstr ":8000"
-   ```
-2. Si ya es tu API, **no vuelvas a ejecutar uvicorn**: abre solo el frontend en http://localhost:5173
-3. Si quieres reiniciar el backend, cierra el proceso anterior (reemplaza `PID` por el número de la columna final):
-   ```powershell
-   taskkill /PID PID /F
-   ```
-4. Luego vuelve a ejecutar `uvicorn app.main:app --reload`
-
-Alternativa: otro puerto y actualizar el proxy en `src/frontend/vite.config.ts`:
 ```bash
-uvicorn app.main:app --reload --port 8001
+pip install -r requirements.txt
+pytest
 ```
 
-### Error `Port 5173 is already in use` al ejecutar `npm run dev`
+---
 
-Otra instancia de Vite ya está corriendo (a menudo de una terminal anterior).
+## 2. Decisiones de diseño (y por qué)
 
-1. **Opción rápida:** abre en el navegador http://localhost:5173 — puede que la app ya esté disponible.
-2. Ver el proceso:
-   ```powershell
-   netstat -ano | findstr ":5173"
-   ```
-3. Cerrar la instancia anterior (reemplaza `PID`):
-   ```powershell
-   taskkill /PID PID /F
-   ```
-4. Vuelve a ejecutar `npm run dev`.
+**FastAPI + SQLite en el backend.** Validación con Pydantic, OpenAPI gratis y SQLite para correr local sin instalar nada más. La lógica sensible (ventana de 30 días, orden de prioridad, renovación) vive en servicios, no en las rutas.
 
-Si 5173 sigue ocupado, Vite usará automáticamente el siguiente puerto libre (por ejemplo 5174); revisa en la terminal la URL que indique.
+**React + Vite + TypeScript en el frontend.** Una sola pantalla: resumen arriba, tabla abajo, modales para gestionar y renovar. Sin librerías de estado externas (`useState` / `useReducer` solamente) y CSS puro, como pedía el alcance.
+
+**`window_status` calculado, no guardado en BD.** Así María siempre ve la urgencia real del día sin jobs nocturnos. Es la misma regla antes y después del vencimiento (30 días).
+
+**Seed al iniciar la API.** Quien clone el repo y levante el backend ve datos de ejemplo sin pasos extra.
+
+**Proxy de Vite en desarrollo.** El navegador pide todo a `:5173` y Vite reenvía al API; evita pelear con CORS en local. También dejé CORS en FastAPI por si alguien usa `VITE_API_BASE_URL` apuntando directo a `:8000`.
+
+### Cómo pensé el “dashboard” (pantalla principal)
+
+No hay gráficos ni varias rutas: es un **panel operativo** para el día a día de María.
+
+| Zona | Qué muestra | Para qué sirve |
+|------|-------------|----------------|
+| **Encabezado — 4 tarjetas** | Contadores: por vencer, en ventana, fuera de ventana, renovadas | Vista rápida del tamaño de cada “cola” de trabajo (como filtrar el Excel por estado) |
+| **Tabla de pólizas** | Cliente, tipo, vencimiento, badge de ventana, estado, última gestión | Lista priorizada (en ventana primero, luego por vencer, etc.) |
+| **Acciones por fila** | Registrar gestión / Renovar | Reemplaza marcar la X en Excel y actualizar la fecha a mano |
+
+**Supuestos que asumí en la UI:** una sola asesora, sin login, español en etiquetas, y que “última gestión” en la tabla es suficiente para decidir si llamar de nuevo (historial completo quedó para mejora continua).
+
+---
+
+## 3. Qué dejé fuera (a propósito)
+
+Lo que **no** está en esta entrega porque prioricé el flujo que más duele en el enunciado (perder clientes por seguimiento tardío):
+
+- Autenticación y multiusuario.
+- Cotización / emisión con aseguradoras.
+- Importar desde Excel.
+- Notificaciones por correo o WhatsApp.
+- Edición o borrado de clientes y pólizas desde la UI.
+
+Está documentado con más detalle en `spec.md`.
+
+---
+
+## 4. Mejora continua (lo del spec que aún no está en código)
+
+Cosas que **sí describí en `spec.md`** pero **no alcancé a implementar** en esta versión. Las dejo explícitas para una siguiente iteración:
+
+| Funcionalidad pendiente | Estado actual |
+|-------------------------|---------------|
+| Filtrar pólizas por `window` (`expiring`, `in_window`, `out_of_window`) | La API lista todo; no hay filtros en query ni botones en la UI |
+| Filtrar por `status` (`active`, `renewed`, `lost`) | Igual que arriba |
+| Ver **historial completo** de gestiones por póliza | Solo se muestra última gestión y total en la tabla |
+| Detalle de póliza con listado de todas las acciones | Existe `GET /policies/{id}` enriquecido, pero sin array de historial ni pantalla dedicada |
+| Dashboard con más métricas (tendencias, % renovación, etc.) | Solo contadores + tabla operativa |
+
+Nada de esto bloquea el MVP del PDF (“ver qué gestionar y registrar acciones”); es deuda alineada con mi propio spec.
+
+---
+
+## 5. Si esto fuera a producción mañana, qué le falta
+
+- Autenticación y que cada asesora vea solo su cartera.
+- PostgreSQL (o similar) en lugar de SQLite para concurrencia real.
+- Variables de entorno documentadas (`.env.example`) y secretos fuera del repo.
+- Filtros e historial completo (ver sección anterior).
+- Monitoreo, backups y despliegue automatizado (CI/CD).
+- Tests de integración HTTP además de los unitarios de reglas de negocio.
+- Revisión de zona horaria Colombia en todos los entornos (hoy está en el servicio de ventana).
+
+---
+
+## 6. Tiempo invertido
+
+Aproximadamente **5 horas** de trabajo real, repartidas en:
+
+- Entender el negocio y escribir `spec.md`
+- Backend (modelo, API, seed, CORS)
+- Frontend (pantalla, modales, conexión al API)
+- Tests de ventana, renovación y prioridad
+- `code_review.md` (en la raíz), historial en `ai_history/` y este README
+
+---
+
+## 7. Qué mejoraría de esta prueba técnica
+
+Sugeriría que el enunciado incluya un **porcentaje orientativo de evaluación** (por ejemplo: 40 % backend, 30 % frontend, 20 % documentación, 10 % tests) o una rúbrica breve. Ayudaría mucho a un perfil junior a priorizar sin adivinar si conviene invertir más en filtros del spec o en pulir el video y la entrega.
+
+También sumaría **un párrafo o wireframe mínimo del dashboard esperado** (aunque sea opcional). El PDF deja libertad total — está bien — pero asumir demasiado genera specs largas y funcionalidades prometidas que luego no entran en las 4 horas.
+
+---
+
+## 8. Video (obligatorio en la entrega)
+
+**Link al video (máx. 3 min):**
+`[PEGAR AQUÍ TU LINK DE LOOM / YOUTUBE UNLISTED]`
+
+Consigna: leer en voz alta las partes más relevantes de `spec.md` y comentar la decisión que más tiempo costó (para mí: la regla de ventana de 30 días y no persistir `window_status`).
+
+---
+
+## 9. Estructura del repositorio
+
+```text
+├── spec.md           # Análisis y decisiones antes de codear
+├── README.md         # Este archivo
+├── code_review.md    # Review del snippet Flask (no está en ai_history/)
+├── ai_history/       # Historial de conversaciones con IA
+├── src/
+│   ├── backend/      # FastAPI + SQLite
+│   └── frontend/     # React + Vite
+├── tests/            # pytest
+├── scripts/          # start_dev.py para levantar todo
+└── requirements.txt
+```
+
+El análisis del snippet de la prueba está solo en **`code_review.md` en la raíz**, no dentro de `ai_history/`.
+
+---
+
+## 10. Problemas frecuentes al arrancar
+
+**Puerto 8000 ocupado** — Otra instancia de uvicorn ya corre. Usa la app en http://localhost:5173 o cierra el proceso anterior.
+
+**Puerto 5173 ocupado** — Otra instancia de Vite ya corre. Abre http://localhost:5173 o detén el proceso y vuelve a ejecutar `npm run dev`. Vite puede usar 5174 si 5173 está libre; revisa la URL en la terminal.
+
+**Pantalla sin datos** — El backend debe estar en marcha. Sin API, verás ceros y tabla vacía con mensaje de conexión.
+
+---
+
+## Contacto entrega
+
+Enviar ZIP según indicaciones de la prueba a **rrhh@agentemotor.com**, carpeta `apellido_nombre/`.
